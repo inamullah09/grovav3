@@ -23,11 +23,8 @@ define('API_SECRET',     '12345'); // CHANGE
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'grova');
-define('DB_USER', 'grova_user');  // CHANGE
-define('DB_PASS', '12345'); // CHANGE
-
-// Blog
-define('POSTS_PER_PAGE', 12);
+define('DB_USER', 'root');     // CHANGE
+define('DB_PASS', '12345');         // CHANGE
 
 // ── PDO singleton ─────────────────────────────────────────────────────────────
 function db(): PDO {
