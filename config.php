@@ -23,8 +23,11 @@ define('API_SECRET',     '12345'); // CHANGE
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'grova');
-define('DB_USER', 'root');     // CHANGE
-define('DB_PASS', '12345');         // CHANGE
+define('DB_USER', 'grova_user');  // CHANGE
+define('DB_PASS', '12345'); // CHANGE
+
+// Blog
+define('POSTS_PER_PAGE', 12);
 
 // ── PDO singleton ─────────────────────────────────────────────────────────────
 function db(): PDO {
@@ -34,7 +37,7 @@ function db(): PDO {
         DB_USER, DB_PASS,
         [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
          PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,
-         PDO::ATTR_EMULATE_PREPARES=>false]
+         PDO::ATTR_EMULATE_PREPARES=>false] 
     );
     return $pdo;
 }
