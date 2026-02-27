@@ -24,7 +24,7 @@ define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'grova_db');        // matches created DB
 define('DB_USER', 'grova_user');      // same
-define('DB_PASS', 'Grova@2026!');     // matches created password
+define('DB_PASS', 'GrovaRoot@2026!');     // matches created password
 
 // Blog
 define('POSTS_PER_PAGE', 12);
