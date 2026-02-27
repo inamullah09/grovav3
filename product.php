@@ -1,137 +1,187 @@
-<?php require_once __DIR__.'/config.php';
-htmlHead('AutoFlow Blueprint — Turn Free Workflows Into Monthly Income','The complete system to find free n8n automation workflows, package them with AI docs, and sell them as digital products.');
-htmlNav('Product');
-?>
-<div class="pt-14">
+<?php
+require_once __DIR__.'/config.php';
 
-<!-- DARK HERO -->
-<div class="bg-brand text-white border-b border-white/10">
-  <!-- ticker -->
-  <div class="overflow-hidden border-b border-white/10 py-2.5">
-    <div class="ticker-inner">
+$productSchema = json_encode([
+    '@context' => 'https://schema.org',
+    '@type'    => 'Product',
+    'name'     => PRODUCT_NAME,
+    'url'      => SITE_URL.'/product.php',
+    'description' => 'The complete system to find free n8n automation workflows, package them with AI-written documentation, and sell them as digital products.',
+    'brand'    => ['@type'=>'Brand','name'=>SITE_NAME],
+    'offers'   => ['@type'=>'Offer','price'=>'29','priceCurrency'=>'USD',
+                   'availability'=>'https://schema.org/InStock',
+                   'url'=>GUMROAD_URL],
+], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+
+pageOpen(PRODUCT_NAME, [
+    'title'   => PRODUCT_NAME.' — Turn Free Workflows Into '.'$500/Month',
+    'desc'    => 'Get 1,000+ n8n automation workflows, a 28-day launch roadmap, and 50+ AI prompts. Build a digital product business with zero coding and zero upfront cost.',
+    'og_type' => 'product',
+    'schema'  => $productSchema,
+], 'Blueprint');
+?>
+
+<main id="main-content" class="pt-14">
+
+<!-- ══ DARK HERO ════════════════════════════════════════════════════════════ -->
+<div class="bg-ink text-white">
+  <!-- Ticker -->
+  <div class="ticker-track border-b border-white/10 py-2">
+    <div class="ticker-reel">
       <?php $ti=['1,000+ real workflows','zero coding required','first sale in 7 days','$0 startup cost','50+ AI prompts','14-day guarantee'];
-      foreach(array_merge($ti,$ti) as $t): ?>
-      <span class="font-mono text-xs text-white/30 uppercase tracking-widest px-10"><?=$t?> <span class="text-accent mx-2">·</span></span>
+      foreach(array_merge($ti,$ti,$ti) as $t): ?>
+      <span class="font-mono text-[.6rem] text-white/25 uppercase tracking-widest px-8"><?=$t?><span class="text-accent mx-3">–</span></span>
       <?php endforeach; ?>
     </div>
   </div>
-  <!-- hero content -->
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-16 grid md:grid-cols-[1.2fr_1fr] gap-10 items-start">
+  <!-- Hero content -->
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16 grid lg:grid-cols-[1fr_380px] gap-10 lg:gap-16 items-start">
     <div>
-      <p class="font-mono text-xs text-white/40 uppercase tracking-widest mb-6">Grova · AutoFlow Blueprint · 2026</p>
-      <h1 class="font-display text-[clamp(2.5rem,6.5vw,5.5rem)] leading-[.9] font-semibold tracking-tight mb-6">
-        Turn free workflows<br/>into <em class="text-accent font-light">monthly income.</em>
+      <p class="font-mono text-[.65rem] text-white/40 uppercase tracking-widest mb-6">Grova · <?=PRODUCT_NAME?> · 2026</p>
+      <h1 class="font-display font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[.9] tracking-tight mb-6">
+        Turn free workflows<br/>into <em class="not-italic text-accent">monthly income.</em>
       </h1>
-      <p class="text-white/60 text-base leading-relaxed max-w-md mb-8">The complete system to find free n8n workflows, package them with AI-written docs, and sell them as digital products. No coding. No experience.</p>
-      <a href="<?=GUMROAD_URL?>" target="_blank" class="inline-block bg-accent text-brand font-bold text-base px-8 py-4 hover:opacity-90 transition-opacity">
+      <p class="font-ui text-white/60 text-base leading-relaxed max-w-md mb-8">
+        Find free n8n automation workflows. Package them with AI-written documentation. 
+        Sell them for $19–$97 each on Gumroad, Etsy, and Lemon Squeezy. 
+        No coding. No experience. No upfront cost.
+      </p>
+      <a href="<?=GUMROAD_URL?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-accent text-white font-ui font-bold text-base px-8 py-4 hover:opacity-90 transition-opacity">
         Get Instant Access — <?=PRODUCT_PRICE?> →
       </a>
       <div class="flex flex-wrap gap-5 mt-5">
         <?php foreach(['14-day money-back guarantee','Instant PDF download','Zero coding required'] as $t): ?>
-        <span class="text-xs text-white/50 flex items-center gap-1.5"><span class="text-accent font-bold">✓</span><?=$t?></span>
+        <span class="font-ui text-xs text-white/50 flex items-center gap-1.5"><span class="text-accent font-bold">✓</span><?=$t?></span>
         <?php endforeach; ?>
       </div>
     </div>
-    <!-- price card -->
-    <div class="bg-white/5 border border-white/10 p-7 self-start">
-      <p class="font-mono text-xs text-white/40 uppercase tracking-widest mb-2">One-time purchase</p>
-      <div class="font-display text-7xl font-semibold text-white"><?=PRODUCT_PRICE?></div>
-      <div class="text-white/30 text-xs line-through mt-1 mb-5">VALUE: $400+</div>
-      <a href="<?=GUMROAD_URL?>" target="_blank" class="block bg-accent text-brand font-bold text-center py-4 text-sm hover:opacity-90 mb-4">Buy Now — Instant Download →</a>
-      <?php foreach(['158-page PDF blueprint','1,000+ curated workflow library','50+ copy-paste ChatGPT prompts','28-day launch roadmap','Platform setup guides (Gumroad, Etsy, LS)'] as $item): ?>
-      <div class="flex items-start gap-2.5 text-sm text-white/60 mb-2.5"><span class="text-accent font-bold flex-shrink-0">→</span><?=$item?></div>
-      <?php endforeach; ?>
+
+    <!-- Price card -->
+    <aside aria-label="Purchase details" class="bg-white/5 border border-white/10 p-6 self-start">
+      <p class="font-mono text-[.6rem] text-white/40 uppercase tracking-widest mb-2">One-time purchase</p>
+      <div class="font-display font-bold text-6xl text-white"><?=PRODUCT_PRICE?></div>
+      <p class="font-ui text-white/30 text-xs line-through mt-1 mb-5">Estimated value: $400+</p>
+      <a href="<?=GUMROAD_URL?>" target="_blank" rel="noopener"
+         class="block bg-accent text-white font-ui font-bold text-center py-3.5 text-sm hover:opacity-90 transition-opacity mb-4">
+        Buy Now — Instant Download →
+      </a>
+      <ul class="space-y-2.5">
+        <?php foreach([
+          '158-page PDF blueprint','1,000+ curated workflow library',
+          '50+ copy-paste ChatGPT prompts','28-day pre-decided roadmap',
+          'Platform guides: Gumroad, Etsy, Lemon Squeezy',
+        ] as $item): ?>
+        <li class="flex items-start gap-2.5 text-sm text-white/60 font-ui">
+          <span class="text-accent font-bold mt-0.5 shrink-0">→</span><?=$item?>
+        </li>
+        <?php endforeach; ?>
+      </ul>
       <div class="mt-5 bg-white/5 border border-white/10 p-4">
-        <p class="text-xs text-white/50 leading-relaxed"><span class="text-accent font-semibold">14-Day Guarantee.</span> Follow Days 1–7. No product listed? Full refund. No questions.</p>
+        <p class="text-xs text-white/50 font-ui leading-relaxed">
+          <strong class="text-accent">14-Day Guarantee.</strong> Follow Days 1–7. 
+          No product listed? Full refund. No questions.
+        </p>
       </div>
-    </div>
+    </aside>
   </div>
 </div>
 
-<?php
-$sections = [
-  ['01','The Opportunity','2,400+ free workflows.<br/><em class="font-light text-muted">Nobody\'s packaging them.</em>',function(){?>
-  <div class="grid md:grid-cols-3 gap-px bg-border mb-10">
-    <?php foreach([
-      ['The gap','Developers share working automations on GitHub, Reddit, n8n.io constantly. Most businesses <strong>want them but can\'t find or deploy them.</strong> That gap is worth money.'],
-      ['The value','Businesses pay $19–$97 for a packaged workflow with a clear setup guide. The value is documentation and clarity — <strong>not the code.</strong>'],
-      ['The model','You find the workflow (free). Package it with AI docs. Sell it. Fulfill automatically. <strong>Repeat until you\'re making $500/month.</strong>'],
-    ] as [$t,$d]): ?>
-    <div class="bg-white p-7"><p class="font-mono text-xs text-muted uppercase tracking-widest mb-4"><?=$t?></p><p class="text-sm text-muted leading-relaxed"><?=$d?></p></div>
-    <?php endforeach; ?>
-  </div>
-  <div class="bg-brand text-white p-8 max-w-2xl">
-    <p class="font-display text-xl italic leading-snug font-light">"The automation market is worth $26 billion. You don't need to build the product. You need to be the <span class="text-accent not-italic">bridge</span> between the builders and the buyers."</p>
-  </div>
-<?php }],
-];
-
-foreach($sections as [$n,$label,$heading,$render]): ?>
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3"><?=$n?> — <?=$label?></p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10"><?=$heading?></h2>
-    <?php $render(); ?>
+<!-- ══ THE PROBLEM ══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="problem-h" class="border-b border-border">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">01 — The Opportunity</p>
+    <h2 id="problem-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-10">
+      2,400+ free workflows exist.<br/><span class="text-muted font-medium">Nobody's packaging them.</span>
+    </h2>
+    <div class="grid md:grid-cols-3 gap-px bg-border mb-10">
+      <?php foreach([
+        ['The gap','Developers share working automations on GitHub, Reddit, n8n.io constantly. Most businesses <strong class="text-ink">want them but can\'t find or deploy them.</strong> That gap is worth money.'],
+        ['The leverage','Businesses pay $19–$97 for a packaged workflow with a clear setup guide. <strong class="text-ink">The value is the documentation</strong> — not the underlying code.'],
+        ['The model','Find a workflow (free). Package it with AI docs. Sell it. Fulfill automatically. <strong class="text-ink">Repeat 15 times. Make $500/month.</strong>'],
+      ] as [$t,$d]): ?>
+      <div class="bg-white p-7">
+        <p class="font-mono text-[.6rem] text-muted uppercase tracking-widest mb-4"><?=$t?></p>
+        <p class="font-ui text-sm text-muted leading-relaxed"><?=$d?></p>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <blockquote class="bg-ink text-white p-8 max-w-2xl border-l-2 border-accent">
+      <p class="font-body italic text-lg leading-snug text-white/90">
+        "The automation market is worth $26B. You don't need to build the product. 
+        You need to be the <em class="not-italic text-accent font-medium">bridge</em> between the builders and the buyers."
+      </p>
+    </blockquote>
   </div>
 </section>
-<?php endforeach; ?>
 
-<!-- WHAT'S INSIDE -->
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">02 — What's Included</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10">Everything you need.<br/><em class="font-light text-muted">Nothing you don't.</em></h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+<!-- ══ WHAT'S INSIDE ════════════════════════════════════════════════════════ -->
+<section aria-labelledby="inside-h" class="border-b border-border bg-cream">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">02 — What's Included</p>
+    <h2 id="inside-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-10">
+      Everything you need. Nothing you don't.
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
       <?php foreach([
-        ['01','28-Day Launch Roadmap','Day-by-day task cards. Zero decision fatigue. Products listed by Day 7. First sale by Day 14.',false,false],
-        ['02','1,000+ Workflow Library','20 categories. Every workflow scored, priced, matched to its ideal buyer.',true,false],
-        ['03','50+ ChatGPT Prompts','Setup guides, listings, social posts, landing copy. Copy → paste → done.',false,false],
-        ['04','Workflow Sourcing System','Exact URLs, search terms, step-by-step. Find high-scoring workflows in under 2 hours.',true,false],
-        ['05','Packaging System','ZIP structure, naming formulas, listing templates. $47–$97 product in 80 minutes.',false,false],
-        ['06','Pricing &amp; Platform Playbook','The formula that works. Gumroad, Etsy, Lemon Squeezy setup guides. Scaling roadmap.',false,true],
-      ] as [$n,$title,$desc,$alt,$lime]): ?>
-      <div class="p-7 <?=$lime?'bg-accent':($alt?'bg-surface':'bg-white')?>">
-        <div class="font-display text-4xl font-light text-border mb-5"><?=$n?></div>
-        <h3 class="font-body font-semibold text-sm mb-2 <?=$lime?'text-brand':''?>"><?=$title?></h3>
-        <p class="text-sm <?=$lime?'text-brand/70':'text-muted'?> leading-relaxed"><?=$desc?></p>
+        ['01','28-Day Launch Roadmap','Day-by-day task cards. Zero decision fatigue. Products listed by Day 7. First sale target: Day 14.',false,false],
+        ['02','1,000+ Workflow Library','20 real categories. Every workflow scored, priced, matched to its ideal buyer persona.',true,false],
+        ['03','50+ ChatGPT Prompts','Copy → paste → done. Setup guides, listings, social posts, landing copy — all generated.',false,false],
+        ['04','Workflow Sourcing System','Exact URLs, search strings, step-by-step sourcing. Find high-scoring workflows in 2 hours.',true,false],
+        ['05','Packaging System','ZIP structure, naming conventions, listing templates. $47–$97 sellable product in 80 minutes.',false,false],
+        ['06','Platform Playbook','Gumroad, Etsy, Lemon Squeezy setup guides. Scaling roadmap to $5K/month.',false,true],
+      ] as [$n,$title,$desc,$alt,$highlight]): ?>
+      <div class="p-7 <?=$highlight?'bg-accent text-white':($alt?'bg-stone':'bg-white')?>">
+        <div class="font-display font-bold text-4xl leading-none mb-5 <?=$highlight?'text-white/20':'text-border'?>"><?=$n?></div>
+        <h3 class="font-display font-semibold text-sm mb-2 <?=$highlight?'text-white':'text-ink'?>"><?=$title?></h3>
+        <p class="font-ui text-sm leading-relaxed <?=$highlight?'text-white/70':'text-muted'?>"><?=$desc?></p>
       </div>
       <?php endforeach; ?>
     </div>
   </div>
 </section>
 
-<!-- WORKFLOW TABLE -->
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">03 — Real Workflows Inside</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-8">1,000+ templates.<br/><em class="font-light text-muted">20 real categories.</em></h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border border-border">
-        <thead><tr class="bg-brand text-white">
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5">Workflow</th>
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5 hidden md:table-cell">Category</th>
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5">Price</th>
-        </tr></thead>
+<!-- ══ WORKFLOW SAMPLES ══════════════════════════════════════════════════════ -->
+<section aria-labelledby="workflows-h" class="border-b border-border">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">03 — Sample Workflows</p>
+    <h2 id="workflows-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-3">
+      1,000+ templates across 20 categories.
+    </h2>
+    <p class="font-ui text-muted mb-8 max-w-lg">From GitHub repos, n8n.io, and Reddit. Every workflow tested, scored, and ready to sell.</p>
+    <div class="overflow-x-auto -mx-5 lg:mx-0 px-5 lg:px-0">
+      <table class="w-full min-w-[600px] text-sm border border-border">
+        <thead>
+          <tr class="bg-ink">
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-white/60 px-5 py-3.5">Workflow</th>
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-white/60 px-5 py-3.5 hidden md:table-cell">Category</th>
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-white/60 px-5 py-3.5">Sell Price</th>
+          </tr>
+        </thead>
         <tbody>
           <?php foreach([
-            ['Agentic Telegram Bot + LangChain Memory','Context-aware AI bot with Supabase long-term memory','Support','$67'],
-            ['Auto-Label Gmail with AI','Analyze incoming emails, auto-assign smart labels','Ops / Email','$47'],
-            ['Invoice Extraction → CSV','Structured data extracted automatically, no manual entry','Finance','$77'],
-            ['WhatsApp AI RAG Chatbot','Complete chatbot with retrieval-augmented generation','Customer Service','$97'],
-            ['Slack + Linear Ticketing','Auto-create Linear tickets from Slack emoji reactions','Support / IT','$77'],
-            ['Lead Qualifier in Google Sheets','Score and prioritize leads with GPT-4 automatically','Sales / CRM','$57'],
-            ['AI Resume Screener → Sheets','Vision AI parses resumes, scores fit, notifies HR','HR','$87'],
-            ['Notion AI Knowledge Base','AI that answers questions from any Notion database','Productivity','$67'],
+            ['Agentic Telegram Bot + LangChain Memory','Context-aware AI with Supabase long-term memory','Support / Bots','$67'],
+            ['Auto-Label Gmail with AI (OpenAI + Gmail)','Auto-assign smart labels, zero manual sorting','Ops / Email','$47'],
+            ['Invoice Extraction: LlamaParse → CSV','Structured data extracted automatically','Finance / Admin','$77'],
+            ['WhatsApp AI RAG Chatbot','Full business chatbot with memory','Customer Service','$97'],
+            ['Slack + Linear Support Ticketing','Auto-create tickets from Slack emoji reactions','Support / IT','$77'],
+            ['Lead Qualifier in Google Sheets (GPT-4)','Score and prioritize leads automatically','Sales / CRM','$57'],
+            ['AI Resume Screener → Sheets','Vision AI parses resumes, scores fit','HR / Recruiting','$87'],
+            ['Notion AI Knowledge Base','AI Q&amp;A from any Notion database','Productivity','$67'],
           ] as $i=>[$name,$desc,$cat,$price]): ?>
-          <tr class="<?=$i%2===1?'bg-surface':'bg-white'?> border-t border-border hover:bg-yellow-50 transition-colors">
-            <td class="px-5 py-4"><div class="font-semibold text-brand"><?=$name?></div><div class="text-xs text-muted mt-0.5"><?=$desc?></div></td>
-            <td class="px-5 py-4 hidden md:table-cell"><span class="font-mono text-xs text-muted"><?=$cat?></span></td>
-            <td class="px-5 py-4 font-display text-xl font-semibold text-brand"><?=$price?></td>
+          <tr class="border-t border-border <?=$i%2?'bg-stone/40':'bg-white'?> hover:bg-accent-dim transition-colors group">
+            <td class="px-5 py-4">
+              <div class="font-ui font-semibold text-ink group-hover:text-accent transition-colors"><?=$name?></div>
+              <div class="font-ui text-xs text-muted mt-0.5"><?=$desc?></div>
+            </td>
+            <td class="px-5 py-4 hidden md:table-cell">
+              <span class="font-mono text-xs text-muted"><?=$cat?></span>
+            </td>
+            <td class="px-5 py-4 font-display font-bold text-lg text-ink"><?=$price?></td>
           </tr>
           <?php endforeach; ?>
-          <tr class="bg-surface border-t border-border">
-            <td colspan="2" class="px-5 py-4 text-muted text-sm italic">+ 992 more across Gmail, Discord, Airtable, DevOps, Social Media…</td>
-            <td class="px-5 py-4 font-display text-lg text-muted">$17–$297</td>
+          <tr class="border-t border-border bg-stone/40">
+            <td colspan="2" class="px-5 py-4 text-muted font-ui text-sm italic">+ 992 more: Gmail, Discord, Airtable, DevOps, Social Media, RAG, HR, Finance…</td>
+            <td class="px-5 py-4 font-display font-semibold text-muted">$17–$297</td>
           </tr>
         </tbody>
       </table>
@@ -139,54 +189,63 @@ foreach($sections as [$n,$label,$heading,$render]): ?>
   </div>
 </section>
 
-<!-- STEPS -->
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">04 — The Process</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10">Zero to first sale.<br/><em class="font-light text-muted">Seven steps.</em></h2>
+<!-- ══ THE PROCESS ══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="process-h" class="border-b border-border bg-cream">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">04 — The Process</p>
+    <h2 id="process-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-10">
+      Zero to first sale in seven steps.
+    </h2>
     <?php foreach([
-      ['01','Find a free workflow','Browse n8n.io, GitHub, or Reddit using our exact search queries. 15 minutes.',false],
-      ['02','Score it','8 criteria, 5 minutes. Score 12+? Sellable product. Below 8? Move on.',false],
-      ['03','Import and test in n8n','One-click import. Run it once. Export the .json. Under 30 minutes.',false],
-      ['04','Paste 5 ChatGPT prompts','Setup guide, credentials, troubleshooting, customization guide. 60 minutes.',false],
-      ['05','Design PDFs in Canva','Template included. No design skills needed. ~3 hours total product time.',false],
-      ['06','Publish on 3 platforms','Gumroad, Etsy, Lemon Squeezy. Three revenue streams, one upload.',false],
-      ['07','Collect revenue. Repeat.','Products sell and fulfill automatically. Build the next one while the first earns.',true],
-    ] as [$n,$title,$desc,$final]): ?>
-    <div class="flex gap-7 py-6 border-b <?=$final?'border-accent bg-yellow-50 -mx-5 md:-mx-10 px-5 md:px-10':'border-border'?> items-start">
-      <div class="font-display text-5xl font-semibold leading-none <?=$final?'text-accent':'text-border'?> w-14 flex-shrink-0"><?=$n?></div>
-      <div><h3 class="font-semibold text-sm mb-1 text-brand"><?=$title?></h3><p class="text-muted text-sm leading-relaxed"><?=$desc?></p></div>
+      ['01','Find a free workflow','Browse n8n.io, GitHub, or Reddit using our exact search queries. Log it in your tracking sheet. 15 minutes.',false],
+      ['02','Score it','8 criteria, 5 minutes. Score 12+? Sellable. Below 8? Move on. No guesswork.',false],
+      ['03','Import and test in n8n','One-click import. Run it once. Export the .json file. Under 30 minutes.',false],
+      ['04','Generate documentation','5 ChatGPT prompts → setup guide, credentials checklist, troubleshooting doc. 60 minutes.',false],
+      ['05','Design PDFs in Canva','Template structure included. Professional output in 60–90 min. Total: ~3 hours per product.',false],
+      ['06','Publish on 3 platforms','Gumroad, Etsy, Lemon Squeezy. Three revenue streams, one upload. Guides included.',false],
+      ['07','Collect revenue. Repeat.','Products fulfill automatically. No calls, no shipping. Build the next while the first earns.',true],
+    ] as [$n,$title,$desc,$last]): ?>
+    <div class="flex gap-6 py-5 border-b <?=$last?'border-accent bg-accent-dim -mx-5 lg:-mx-8 px-5 lg:px-8':'border-border'?> items-start">
+      <div class="font-display font-bold text-4xl leading-none <?=$last?'text-accent':'text-border'?> w-12 shrink-0 mt-0.5"><?=$n?></div>
+      <div>
+        <h3 class="font-display font-semibold text-sm text-ink mb-1"><?=$title?></h3>
+        <p class="font-ui text-sm text-muted leading-relaxed"><?=$desc?></p>
+      </div>
     </div>
     <?php endforeach; ?>
   </div>
 </section>
 
-<!-- COMPARISON -->
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">05 — Why This Model</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10">vs. every other<br/><em class="font-light text-muted">digital product model.</em></h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr class="bg-surface border-b border-border">
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5 text-muted">What You Need</th>
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5 bg-brand text-white">AutoFlow Blueprint</th>
-          <th class="text-left font-mono text-xs tracking-widest uppercase px-5 py-3.5 text-muted hidden md:table-cell">Other Models</th>
-        </tr></thead>
+<!-- ══ COMPARISON ════════════════════════════════════════════════════════════ -->
+<section aria-labelledby="compare-h" class="border-b border-border">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">05 — Why This Model</p>
+    <h2 id="compare-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-8">
+      vs. every other digital product model.
+    </h2>
+    <div class="overflow-x-auto -mx-5 lg:mx-0 px-5 lg:px-0">
+      <table class="w-full min-w-[500px] text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-muted px-5 py-3 bg-stone/50">Requirement</th>
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-white px-5 py-3 bg-ink"><?=PRODUCT_NAME?></th>
+            <th class="text-left font-mono text-[.6rem] tracking-widest uppercase text-muted px-5 py-3 bg-stone/50">Other Models</th>
+          </tr>
+        </thead>
         <tbody>
           <?php foreach([
-            ['Coding / tech skills','✓ Zero required','Usually essential'],
+            ['Coding or tech skills','✓ Zero required','Usually essential'],
             ['Upfront investment','✓ $0 to launch','$200–$2,000+'],
-            ['Content creation','✓ AI generates it all','Weeks of writing'],
+            ['Content creation','✓ AI generates docs','Weeks of writing'],
             ['Time per product','✓ ~80 minutes','Days to weeks'],
-            ['Source material cost','✓ Free (open source)','Paid licenses'],
+            ['Source material','✓ Free (open source)','Paid licenses'],
             ['Order fulfillment','✓ 100% automated','Manual delivery'],
-            ['Time to first sale','✓ 7–14 days','2–6 months'],
+            ['Time to first sale','✓ 7–14 days target','2–6 months'],
           ] as [$need,$ours,$theirs]): ?>
           <tr class="border-b border-border">
-            <td class="px-5 py-3.5 text-muted"><?=$need?></td>
-            <td class="px-5 py-3.5 font-semibold text-green-700 bg-green-50"><?=$ours?></td>
-            <td class="px-5 py-3.5 text-muted line-through opacity-40 hidden md:table-cell"><?=$theirs?></td>
+            <td class="px-5 py-3.5 font-ui text-muted"><?=$need?></td>
+            <td class="px-5 py-3.5 font-ui font-semibold text-success bg-green-50"><?=$ours?></td>
+            <td class="px-5 py-3.5 font-ui text-muted line-through opacity-50"><?=$theirs?></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
@@ -195,65 +254,72 @@ foreach($sections as [$n,$label,$heading,$render]): ?>
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="border-b border-border bg-surface">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">06 — Results</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10">Real buyers.<br/><em class="font-light text-muted">Real outcomes.</em></h2>
+<!-- ══ SOCIAL PROOF ══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="proof-h" class="border-b border-border bg-cream">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">06 — Early Results</p>
+    <h2 id="proof-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-10">
+      Real buyers. Real outcomes.
+    </h2>
     <div class="grid md:grid-cols-3 gap-px bg-border">
       <?php foreach([
-        ['Had my first Gumroad sale on Day 9. Posted in r/n8n, one person bought. Made $47 while at the gym. Nothing else I\'ve tried worked this fast.','Marcus T.','Freelance Designer → Workflow Seller',false],
-        ['I was a VA for 6 years. First product took 4 hours total. It\'s sold 23 times at $47. The math speaks for itself.','Samira K.','Virtual Assistant → Digital Creator',true],
-        ['34 products live. Making $1,200–$2,800/month. The workflow library alone is worth 10× the price.','Ryan O.','Software Tester → Full-Time Creator',false],
-      ] as [$q,$name,$role,$alt]): ?>
-      <div class="<?=$alt?'bg-white':'bg-surface'?> p-7">
-        <p class="font-display text-base italic leading-relaxed text-brand mb-5 font-light">"<?=$q?>"</p>
-        <div class="font-semibold text-sm text-brand"><?=$name?></div>
-        <div class="text-xs text-muted mt-0.5"><?=$role?></div>
-      </div>
+        ['Had my first Gumroad sale on Day 9. Posted in r/n8n, one buyer. Made $47 while at the gym. Nothing I\'ve tried worked this fast.','Marcus T.','Freelance Designer → Workflow Seller'],
+        ['Was a VA for 6 years. First product took 4 hours total. Sold 23 times at $47. The math is undeniable.','Samira K.','Virtual Assistant → Digital Creator'],
+        ['34 products live. $1,200–$2,800/month. The workflow library alone is worth 10× what I paid.','Ryan O.','Software Tester → Full-Time Creator'],
+      ] as [$q,$name,$role]): ?>
+      <figure class="bg-white p-7">
+        <blockquote class="font-body italic text-base leading-relaxed text-ink mb-5">"<?=$q?>"</blockquote>
+        <figcaption>
+          <div class="font-ui font-semibold text-sm text-ink"><?=$name?></div>
+          <div class="font-ui text-xs text-muted mt-0.5"><?=$role?></div>
+        </figcaption>
+      </figure>
       <?php endforeach; ?>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="border-b border-border">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-14">
-    <p class="font-mono text-xs text-muted uppercase tracking-widest mb-3">07 — Questions</p>
-    <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-semibold text-brand mb-10">Common questions.<br/><em class="font-light text-muted">Honest answers.</em></h2>
+<!-- ══ FAQ ═══════════════════════════════════════════════════════════════════ -->
+<section aria-labelledby="faq-h" class="border-b border-border">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-16">
+    <p class="font-mono text-[.65rem] text-muted uppercase tracking-widest mb-3">07 — FAQ</p>
+    <h2 id="faq-h" class="font-display font-bold text-[clamp(1.75rem,3.5vw,2.75rem)] text-ink mb-10">
+      Honest answers to common questions.
+    </h2>
     <div class="max-w-2xl">
       <?php foreach([
-        ['Do I need to know how to code?','Zero. The most technical step is importing a JSON file — one click in n8n. Everything else uses free tools and AI.'],
-        ['Is selling packaged workflows legal?','Yes. You\'re selling documentation and your time — not the software. MIT-licensed workflows explicitly allow commercial use. The guide covers license verification.'],
-        ['What does it actually cost to start?','$0 beyond this guide. n8n free tier, Canva free, ChatGPT free tier. Platforms take a % of sales only.'],
-        ['How realistic is $500/month?','15–20 products at avg $37 = ~14 sales/month. Month 2 buyers typically see 5–20 sales. By Month 3–6, Etsy SEO compounds without ongoing promotion.'],
-        ['What if I have no existing audience?','Designed for zero-audience starts. First sales come from Reddit communities, Etsy organic search, and LinkedIn outreach — all in the 28-day roadmap.'],
-        ['Why is the price so low?','Starting at '.PRODUCT_PRICE.' to build real social proof. Content took months to build. The workflow library alone represents hundreds of hours of research.'],
+        ['Do I need to know how to code?','Zero. The most technical step is importing a JSON file — one click in n8n. Everything else uses free tools and AI prompts.'],
+        ['Is selling packaged workflows legal?','Yes. You\'re selling documentation, setup guides, and your curation time — not the underlying software. MIT-licensed workflows explicitly allow commercial use. The guide covers license verification.'],
+        ['What does it actually cost to start?','$0 beyond this guide. n8n free tier, Canva free, ChatGPT free tier. Gumroad, Etsy, and Lemon Squeezy take a percentage of sales only.'],
+        ['How realistic is $500/month?','15–20 products at avg $37 needs ~14 sales/month. Month 2 buyers typically see 5–20 sales. Month 3–6, Etsy SEO compounds on autopilot.'],
+        ['What if I have no existing audience?','Designed for zero-audience starts. First sales come from Reddit communities, Etsy organic search, and LinkedIn — all covered in the 28-day roadmap.'],
+        ['Why is the price so low at '.PRODUCT_PRICE.'?','We\'re in early-access pricing to build real social proof. The content took months and represents hundreds of hours of workflow research.'],
       ] as [$q,$a]): ?>
       <div class="border-b border-border py-5">
-        <div class="font-semibold text-sm text-brand mb-2"><?=$q?></div>
-        <p class="text-muted text-sm leading-relaxed"><?=$a?></p>
+        <h3 class="font-display font-semibold text-sm text-ink mb-2"><?=$q?></h3>
+        <p class="font-ui text-sm text-muted leading-relaxed"><?=$a?></p>
       </div>
       <?php endforeach; ?>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="bg-brand text-white">
-  <div class="max-w-5xl mx-auto px-5 md:px-10 py-20 flex flex-col md:flex-row justify-between items-center gap-12">
-    <h2 class="font-display text-[clamp(2.5rem,6vw,4.5rem)] font-semibold leading-[.9]">
-      The people doing this<br/>started <em class="text-accent font-light">exactly</em><br/>where you are.
+<!-- ══ FINAL CTA ═════════════════════════════════════════════════════════════ -->
+<section aria-label="Final purchase CTA" class="bg-ink text-white">
+  <div class="max-w-site mx-auto px-5 lg:px-8 py-20 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
+    <h2 class="font-display font-bold text-[clamp(2rem,5vw,3.75rem)] leading-[.95]">
+      Everyone who does this<br/>started exactly <em class="not-italic text-accent">where you are.</em>
     </h2>
-    <div class="w-full max-w-xs">
-      <p class="text-white/50 text-sm leading-relaxed mb-6">Not more technical. Not smarter. Just earlier. The system is ready.</p>
-      <a href="<?=GUMROAD_URL?>" target="_blank" class="block bg-accent text-brand font-bold text-center text-sm px-6 py-4 hover:opacity-90">
-        Get AutoFlow Blueprint — <?=PRODUCT_PRICE?>
+    <div class="shrink-0 w-full lg:w-72">
+      <p class="font-ui text-white/50 text-sm leading-relaxed mb-6">Not more technical. Not smarter. Just earlier. The system is ready when you are.</p>
+      <a href="<?=GUMROAD_URL?>" target="_blank" rel="noopener"
+         class="block bg-accent text-white font-ui font-bold text-center text-sm px-6 py-4 hover:opacity-90 transition-opacity">
+        Get <?=PRODUCT_NAME?> — <?=PRODUCT_PRICE?>
       </a>
-      <p class="text-white/30 text-xs mt-3 text-center uppercase tracking-wider">Instant download · 14-day guarantee</p>
+      <p class="font-mono text-[.6rem] text-white/30 uppercase tracking-widest mt-3 text-center">Instant download · 14-day guarantee</p>
     </div>
   </div>
 </section>
 
-</div>
-<?php htmlFoot(); ?>
+</main>
+<?php pageClose(); ?>

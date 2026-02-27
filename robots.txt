@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.php
+Disallow: /api/
+Disallow: /config.php
+Disallow: /schema.sql
+
+Sitemap: https://grova.io/sitemap.php
