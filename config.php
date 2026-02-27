@@ -10,7 +10,7 @@ define('API_SECRET',       'grova12345'); // CHANGE
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'grova');
 define('DB_USER', 'root');     // CHANGE
-define('DB_PASS', '12345');         // CHANGE
+define('DB_PASS', 'Grova@2026!');         // CHANGE
 
 // ── DB CONNECTION ─────────────────────────────────────────────────────────
 function db(): PDO {
