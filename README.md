@@ -1,114 +1,102 @@
-# Grova — Production Deploy Guide
+# Grova — SQLite Edition · Deploy Guide
+
+## Why SQLite?
+Zero config. No DB server. The database is a single file (`data/grova.db`).
+Created automatically on first page load. Perfect for VPS solo deployments.
 
 ## Prerequisites (Ubuntu 22.04 / 24.04)
 ```bash
-sudo apt update && sudo apt install -y nginx php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml mysql-server certbot python3-certbot-nginx
+sudo apt update && sudo apt install -y nginx php8.3-fpm php8.3-sqlite3 certbot python3-certbot-nginx
 ```
 
-## 1. MySQL Setup
-```bash
-sudo mysql -u root -p
-CREATE USER 'grova_user'@'localhost' IDENTIFIED BY 'strong_password';
-GRANT ALL PRIVILEGES ON grova.* TO 'grova_user'@'localhost';
-FLUSH PRIVILEGES; EXIT;
+> **Only `php8.3-sqlite3` needed — no MySQL, no credentials, no setup.**
 
-mysql -u grova_user -p < schema.sql
-```
+---
 
-## 2. Upload Files
+## Deploy Steps
+
+### 1. Upload files
 ```bash
 sudo mkdir -p /var/www/grova
-sudo rsync -avz ./grova/ user@yourserver:/var/www/grova/
-# OR via FTP/SFTP to /var/www/grova/
+rsync -avz ./grova/ user@yourserver:/var/www/grova/
 ```
 
-## 3. Permissions
+### 2. Edit config.php — required
+```php
+define('SITE_URL',        'https://grova.io');
+define('GUMROAD_URL',     'https://gumroad.com/l/YOUR_LINK');
+define('SITE_EMAIL',      'hello@grova.io');
+define('ADMIN_PASSWORD',  'very-strong-password');
+define('API_SECRET',      'random-64-char-string');
+define('DB_PATH',         __DIR__.'/data/grova.db');  // default is fine
+```
+
+### 3. Permissions
 ```bash
 sudo chown -R www-data:www-data /var/www/grova
-sudo chmod 644 /var/www/grova/*.php
+sudo chmod 755 /var/www/grova/data   # or mkdir if not created yet
 sudo chmod 600 /var/www/grova/config.php
 ```
 
-## 4. Edit config.php — REQUIRED
-```php
-define('SITE_URL',         'https://grova.io');
-define('GUMROAD_URL',      'https://gumroad.com/l/YOUR_LINK');
-define('SITE_EMAIL',       'hello@grova.io');
-define('ADMIN_PASSWORD',   'very-strong-password');
-define('API_SECRET',       'random-64-char-secret');
-define('DB_USER',          'grova_user');
-define('DB_PASS',          'strong_password');
-```
-
-## 5. Nginx Config
+### 4. Nginx config
 ```bash
 sudo cp /var/www/grova/nginx.conf /etc/nginx/sites-available/grova.io
+# Edit: change root path to /var/www/grova
 sudo ln -s /etc/nginx/sites-available/grova.io /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-## 6. SSL Certificate
+### 5. SSL
 ```bash
 sudo certbot --nginx -d grova.io -d www.grova.io
-sudo systemctl reload nginx
 ```
 
-## 7. Verify
-- https://grova.io → Homepage
-- https://grova.io/product.php → Sales page
-- https://grova.io/blog.php → Blog
-- https://grova.io/admin.php → Admin (use your ADMIN_PASSWORD)
-- https://grova.io/sitemap.php → XML sitemap
-- https://grova.io/robots.txt → Robots file
+### 6. First load
+Visit https://grova.io — the SQLite DB file is created automatically at `data/grova.db`.
 
 ---
 
-## API Usage (n8n / Python)
+## Backups (simple)
+```bash
+# Backup DB — just copy the file
+cp /var/www/grova/data/grova.db /backups/grova-$(date +%Y%m%d).db
 
-### Full Post Object
+# Cron backup daily at 3am
+0 3 * * * cp /var/www/grova/data/grova.db /backups/grova-$(date +\%Y\%m\%d).db
+```
+
+---
+
+## API (n8n / Python)
+
+### POST /api/create-post.php
+```
+Authorization: Bearer YOUR_API_SECRET
+Content-Type: application/json
+```
+
 ```json
 {
-  "title":          "Your Post Title",
-  "content":        "<p>HTML content here</p>",
-  "excerpt":        "Short summary (155 chars for SEO)",
-  "meta_title":     "SEO Title — Grova (optional)",
-  "meta_desc":      "SEO meta description (optional)",
+  "title":          "Post Title",
+  "content":        "<p>HTML content</p>",
+  "excerpt":        "Short summary",
+  "meta_title":     "SEO Title (optional)",
+  "meta_desc":      "SEO description (optional)",
   "category":       "Guide",
-  "tags":           ["n8n", "automation", "workflows"],
-  "featured_image": "https://yourcdn.com/image.jpg",
+  "tags":           ["n8n", "automation"],
+  "featured_image": "https://yourcdn.com/img.jpg",
   "read_time":      8,
   "published":      true,
   "schema_type":    "Article"
 }
 ```
 
-### n8n HTTP Request Node
-```
-Method:  POST
-URL:     https://grova.io/api/create-post.php
-Headers: Authorization: Bearer YOUR_API_SECRET
-         Content-Type: application/json
-Body:    (JSON object above)
-```
-
-### Python
 ```python
 import requests
-
-r = requests.post(
-    'https://grova.io/api/create-post.php',
+r = requests.post('https://grova.io/api/create-post.php',
     headers={'Authorization': 'Bearer YOUR_API_SECRET'},
-    json={
-        'title': 'How to Automate Your Email Workflow',
-        'content': '<p>HTML content...</p>',
-        'excerpt': 'Short summary for cards and SEO.',
-        'category': 'Tutorial',
-        'tags': ['n8n', 'email', 'automation'],
-        'read_time': 6,
-        'published': True,
-    }
-)
-print(r.json())  # {"ok": true, "slug": "how-to-automate-your-email-workflow", "url": "/post.php?slug=..."}
+    json={'title':'My Post','content':'<p>Content</p>','published':True})
+print(r.json())
 ```
 
 ---
@@ -116,26 +104,20 @@ print(r.json())  # {"ok": true, "slug": "how-to-automate-your-email-workflow", "
 ## File Structure
 ```
 /var/www/grova/
-├── config.php          All settings + DB helpers + shared HTML
-├── index.php           Homepage (ecosystem positioning)
-├── product.php         Sales page (full conversion page)
-├── blog.php            Blog listing (pagination + category filter)
-├── post.php            Single post (Article schema + SEO meta)
-├── admin.php           Admin panel (password protected)
-├── sitemap.php         Dynamic XML sitemap
-├── robots.txt          Crawler rules
-├── schema.sql          MySQL schema
-├── nginx.conf          Nginx server block
+├── config.php       Settings + SQLite connection + all helpers
+├── index.php        Homepage
+├── product.php      Sales page
+├── blog.php         Blog listing (pagination + category filter)
+├── post.php         Single post (Article schema + SEO)
+├── admin.php        Admin panel
+├── sitemap.php      Dynamic XML sitemap
+├── robots.txt       Crawler rules
+├── schema.sql       Reference only — auto-created on first run
+├── nginx.conf       Server block config
 ├── api/
-│   └── create-post.php n8n/Python automation endpoint
+│   └── create-post.php
+├── data/
+│   └── grova.db     ← SQLite file (auto-created, keep backed up)
 └── assets/
-    └── og.jpg          Default OG image (1200×630 — ADD THIS)
+    └── og.jpg       ← Add: 1200×630px OG image
 ```
-
-## SEO Checklist
-- [ ] Add og.jpg (1200×630px) to /assets/
-- [ ] Submit sitemap to Google Search Console: https://grova.io/sitemap.php
-- [ ] Verify site in Google Search Console
-- [ ] Set up Google Analytics (add tracking script to config.php head)
-- [ ] Test: https://developers.google.com/search/docs/appearance/structured-data
-- [ ] Test: https://pagespeed.web.dev/

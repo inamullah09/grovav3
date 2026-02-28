@@ -44,7 +44,7 @@ if (!empty($_SESSION['admin'])) {
     $sql = 'SELECT * FROM posts'.($where?' WHERE '.implode(' AND ',$where):'').' ORDER BY created_at DESC';
     $s = db()->prepare($sql); $s->execute($params);
     $posts = $s->fetchAll();
-    $stats = db()->query('SELECT COUNT(*) total, SUM(published) live, SUM(1-published) drafts, SUM(views) views FROM posts')->fetch();
+    $stats = db()->query('SELECT COUNT(*) total, SUM(published) live, SUM(CASE WHEN published=0 THEN 1 ELSE 0 END) drafts, SUM(views) views FROM posts')->fetch();
     $allCats = db()->query('SELECT DISTINCT category FROM posts ORDER BY category')->fetchAll(PDO::FETCH_COLUMN);
 }
 ?>

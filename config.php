@@ -16,30 +16,63 @@ define('PRODUCT_PRICE', '$29');
 define('GUMROAD_URL',   'https://gumroad.com/l/CHANGE');  // CHANGE
 
 // Auth
-define('ADMIN_PASSWORD', '12345');   // CHANGE
-define('API_SECRET',     '12345'); // CHANGE
+define('ADMIN_PASSWORD', 'Inam7224');   // CHANGE
+define('API_SECRET',     'grova'); // CHANGE
 
-// Database
-define('DB_HOST', 'localhost');
-define('DB_PORT', '3306');
-define('DB_NAME', 'grova');        // matches created DB
-define('DB_USER', 'grova_user');      // same
-define('DB_PASS', 'GrovaRoot@2026!');     // matches created password
+// Database — SQLite file path (writable by web server, outside webroot is ideal)
+// Default: stored in /data/ folder next to your PHP files.
+// Tip: on Nginx/Apache point DB_PATH outside public root for extra security.
+define('DB_PATH', __DIR__.'/data/grova.db');  // CHANGE path if needed
 
 // Blog
 define('POSTS_PER_PAGE', 12);
 
-// ── PDO singleton ─────────────────────────────────────────────────────────────
+// ── PDO singleton (SQLite) ────────────────────────────────────────────────────
 function db(): PDO {
     static $pdo;
-    if (!$pdo) $pdo = new PDO(
-        'mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME.';charset=utf8mb4',
-        DB_USER, DB_PASS,
-        [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
-         PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,
-         PDO::ATTR_EMULATE_PREPARES=>false] 
-    );
+    if (!$pdo) {
+        $dir = dirname(DB_PATH);
+        if (!is_dir($dir)) mkdir($dir, 0750, true);
+        $pdo = new PDO('sqlite:'.DB_PATH, null, null, [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+        // Performance pragmas
+        $pdo->exec('PRAGMA journal_mode=WAL');
+        $pdo->exec('PRAGMA synchronous=NORMAL');
+        $pdo->exec('PRAGMA foreign_keys=ON');
+        // Auto-create schema on first run
+        dbInit($pdo);
+    }
     return $pdo;
+}
+
+// ── Auto-initialize schema if tables don't exist ──────────────────────────────
+function dbInit(PDO $pdo): void {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS posts (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            title          TEXT    NOT NULL,
+            slug           TEXT    NOT NULL UNIQUE,
+            excerpt        TEXT    DEFAULT '',
+            content        TEXT    DEFAULT '',
+            meta_title     TEXT    DEFAULT '',
+            meta_desc      TEXT    DEFAULT '',
+            category       TEXT    NOT NULL DEFAULT 'Article',
+            tags           TEXT    DEFAULT '[]',
+            featured_image TEXT    DEFAULT '',
+            read_time      INTEGER DEFAULT 5,
+            published      INTEGER NOT NULL DEFAULT 0,
+            views          INTEGER NOT NULL DEFAULT 0,
+            schema_type    TEXT    NOT NULL DEFAULT 'Article',
+            created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+            updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_published ON posts(published);
+        CREATE INDEX IF NOT EXISTS idx_category  ON posts(category);
+        CREATE INDEX IF NOT EXISTS idx_created   ON posts(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_pub_cat   ON posts(published, category);
+    ");
 }
 
 // ── Post helpers ──────────────────────────────────────────────────────────────
@@ -48,7 +81,7 @@ function getPosts(int $page=1, string $cat='', string $tag=''): array {
     $where = ['published=1'];
     $params = [];
     if ($cat) { $where[] = 'category=?'; $params[] = $cat; }
-    if ($tag) { $where[] = 'JSON_CONTAINS(tags, JSON_QUOTE(?))'; $params[] = $tag; }
+    if ($tag) { $where[] = "tags LIKE ?"; $params[] = '%"'.str_replace('"','',$tag).'"%'; }
     $sql = 'SELECT id,title,slug,excerpt,category,tags,featured_image,read_time,views,created_at
             FROM posts WHERE '.implode(' AND ',$where).'
             ORDER BY created_at DESC LIMIT '.POSTS_PER_PAGE.' OFFSET '.$offset;
@@ -57,7 +90,7 @@ function getPosts(int $page=1, string $cat='', string $tag=''): array {
 function countPosts(string $cat='', string $tag=''): int {
     $where = ['published=1']; $params = [];
     if ($cat) { $where[] = 'category=?'; $params[] = $cat; }
-    if ($tag) { $where[] = 'JSON_CONTAINS(tags, JSON_QUOTE(?))'; $params[] = $tag; }
+    if ($tag) { $where[] = "tags LIKE ?"; $params[] = '%"'.str_replace('"','',$tag).'"%'; }
     $s = db()->prepare('SELECT COUNT(*) FROM posts WHERE '.implode(' AND ',$where));
     $s->execute($params); return (int)$s->fetchColumn();
 }
@@ -87,7 +120,7 @@ function savePost(array $d): string {
     $existing = getPost($slug);
     if ($existing) {
         $set = implode(',', array_map(fn($f)=>"$f=?", $fields));
-        $set .= ',tags=?,updated_at=NOW()';
+        $set .= ",tags=?,updated_at=datetime('now')";
         db()->prepare("UPDATE posts SET $set WHERE slug=?")
             ->execute([...array_values($row), $tags, $slug]);
     } else {
